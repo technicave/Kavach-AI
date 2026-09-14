@@ -66,7 +66,7 @@ def correct_country_code(raw3: str):
 
     return raw3, False
 
-IMAGE_PATH = "sample/7.jpg"   # ← change if needed
+IMAGE_PATH = "tampered_passports/fake3.png"   # ← change if needed
 
 ocr = PaddleOCR(use_textline_orientation=True, lang='en', enable_mkldnn=False)
 
@@ -425,6 +425,26 @@ def main():
         for issue in issues:
             print("   -", issue)
 
+
+def analyze_document(image_path):
+    """Callable version of main() — returns a dict instead of printing."""
+    result = ocr.predict(image_path)
+    texts = get_all_texts(result)
+
+    visual = extract_fields(texts)
+    mrz = parse_mrz(texts, visual_passport_number=visual.get('passport_number'))
+
+    if mrz and mrz.get('name_mrz'):
+        visual['name'] = mrz['name_mrz']
+
+    issues = check_tamper(visual, mrz)
+
+    return {
+        "visual": visual,
+        "mrz": mrz,
+        "ocr_issues": issues,
+        "mrz_parsed_successfully": mrz is not None,
+    }
 
 if __name__ == "__main__":
     main()
