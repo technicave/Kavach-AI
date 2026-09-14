@@ -88,29 +88,3 @@ FastAPI provides an automatic interactive documentation interface:
   `http://127.0.0.1:8000/redoc`
 
 Use these pages to test the API endpoints directly from your browser!
-
----
-
-## 🧪 Project Structure
-
-```text
-.
-├── env/                   # Virtual Environment
-├── backend/
-│   ├── app.py             # Main FastAPI entry point
-│   ├── controllers/       # Route handlers & controllers
-│   ├── models/            # Machine learning / computer vision models
-│   └── utils/             # Helper utilities & image processing logic
-├── requirements.txt       # Python dependencies
-└── README.md              # Project documentation
-```
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
