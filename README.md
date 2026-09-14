@@ -64,14 +64,14 @@ pip install -r requirements.txt
    source env/bin/activate
    ```
 
-2. **Navigate to the backend directory:**
+2. **Navigate to the root directory:**
    ```bash
-   cd backend
+   from the root directory 
    ```
 
 3. **Start the FastAPI server:**
    ```bash
-   uvicorn app:app --reload
+   uvicorn backend.app:app --reload
    ```
 
 The server will launch and run locally (default: `http://127.0.0.1:8000`).
