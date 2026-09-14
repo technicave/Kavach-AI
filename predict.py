@@ -1,0 +1,55 @@
+import sys
+import cv2
+import joblib
+from features import extract_features
+
+
+def predict(image_path, model_path="tamper_model.joblib"):
+    clf = joblib.load(model_path)
+    img = cv2.imread(image_path)
+    if img is None:
+        return {"error": f"Could not read image → {image_path}"}
+
+    feats = extract_features(img)
+    if feats is None:
+        return {"error": "Could not locate a photo region on this document"}
+
+    X = [[feats["ela"], feats["edge"], feats["noise_texture"], feats["sharpness"]]]
+    proba = clf.predict_proba(X)[0]
+    tampered_prob = round(float(proba[1]) * 100, 2)
+
+    # Safety net: deterministic override so a known-strong forensic signal can't be
+    # missed just because the ML model's confidence happens to sit in a gray zone on
+    # a given sample. This guarantees a baseline catch rate independent of model variance.
+    rule_triggered = feats["ela"] > 40 or feats["edge"] > 60
+    if rule_triggered:
+        tampered_prob = max(tampered_prob, 75.0)
+
+    if tampered_prob >= 70:
+        decision = "High Risk - Possible Photo Replacement"
+    elif tampered_prob >= 35:
+        decision = "Medium Risk - Needs Manual Review"
+    else:
+        decision = "Low Risk - Likely Genuine"
+
+    return {
+        "tampered_probability": tampered_prob,
+        "decision": decision,
+        "rule_override_triggered": rule_triggered,
+        "features": feats,
+    }
+
+
+if __name__ == "__main__":
+    path = sys.argv[1] if len(sys.argv) > 1 else input("Enter image path: ").strip()
+    result = predict(path)
+    if "error" in result:
+        print("Error:", result["error"])
+    else:
+        print("\n" + "=" * 45)
+        print("   PHOTO REPLACEMENT DETECTION REPORT (ML)")
+        print("=" * 45)
+        print(f"Tampered Probability : {result['tampered_probability']}%")
+        print(f"Decision              : {result['decision']}")
+        print(f"Rule Override Fired   : {result['rule_override_triggered']}")
+        print(f"Raw signals           : {result['features']}")
